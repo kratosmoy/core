@@ -4,6 +4,7 @@ import com.data.service.core.mapper.EntityMapper;
 import com.data.service.core.search.GenericSpecification;
 import com.data.service.core.search.MetricRequest;
 import com.data.service.core.search.SearchCriteria;
+import com.data.service.core.search.SearchRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -74,17 +75,17 @@ public class GenericService<M, E> {
         repository.deleteById(id);
     }
 
-    public List<M> query(MetricRequest request) {
-        Specification<E> spec = buildSpecification(request);
+    public List<M> query(SearchRequest request) {
+        Specification<E> spec = buildSpecification(request.getConditions());
         return specExecutor.findAll(spec).stream()
                 .map(mapper::toModel)
                 .collect(Collectors.toList());
     }
 
-    private Specification<E> buildSpecification(MetricRequest request) {
+    private Specification<E> buildSpecification(List<SearchCriteria> criteriaList) {
         Specification<E> spec = null;
-        if (request.getFilters() != null) {
-            for (SearchCriteria criteria : request.getFilters()) {
+        if (criteriaList != null) {
+            for (SearchCriteria criteria : criteriaList) {
                 Specification<E> nextSpec = new GenericSpecification<>(criteria);
                 spec = (spec == null) ? nextSpec : spec.and(nextSpec);
             }
@@ -93,7 +94,7 @@ public class GenericService<M, E> {
     }
 
     public Object getMetric(MetricRequest request) {
-        Specification<E> spec = buildSpecification(request);
+        Specification<E> spec = buildSpecification(request.getFilters());
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();

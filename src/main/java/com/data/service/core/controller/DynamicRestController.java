@@ -1,6 +1,7 @@
 package com.data.service.core.controller;
 
 import com.data.service.core.search.MetricRequest;
+import com.data.service.core.search.SearchRequest;
 import com.data.service.core.service.GenericService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class DynamicRestController {
     }
 
     @PostMapping("/query")
-    public ResponseEntity<?> query(@PathVariable String entity, @RequestBody MetricRequest request) {
+    public ResponseEntity<?> query(@PathVariable String entity, @RequestBody SearchRequest request) {
         GenericService service = getServiceOrThrow(entity);
         return ResponseEntity.ok(service.query(request));
     }
